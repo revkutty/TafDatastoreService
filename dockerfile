@@ -12,7 +12,7 @@ WORKDIR /app
 COPY build/libs/my-datastore-service.jar app.jar
 
 # Expose the port your Spring Boot application is running on (default is 8080)
-EXPOSE 8080
+EXPOSE 8081
 
 # Command to run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
