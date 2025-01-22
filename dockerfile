@@ -1,5 +1,6 @@
 # Use a specific OpenJDK 17 base image
 #FROM openjdk:17-jdk-slim
+#docker file
 
 FROM amazoncorretto:17
 
