@@ -28,15 +28,6 @@ public class BookingService {
     private UserRepository userRepository;
 
 
-  /*  public List<Bookings> getBookingsForUser(Long userId) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-        return bookingRepository.findByUser(user);
-    }
-
-
-   */
-
     //keep userId as a Long field and not use @ManyToOne
     public List<BookingResponseDTO> getBookingsForUser(Long userId) {
         List<Bookings> bookings = bookingRepository.findByUserId(userId);
@@ -48,7 +39,17 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
-
+    //keep userId as a Long field and not use @ManyToOne
+    public List<BookingResponseDTO> getBookingsByFlightId(Long flightId) {
+        List<Bookings> bookings = bookingRepository.findByUserId(flightId);
+        return bookings.stream()
+                .map(booking -> {
+                    Flights flight = flightRepository.findById(booking.getFlight().getId())
+                           .orElseThrow(() -> new RuntimeException("Flight not found for ID: " + booking.getFlight()));
+                    return new BookingResponseDTO(booking, flight);
+                })
+                .collect(Collectors.toList());
+    }
 
 
 

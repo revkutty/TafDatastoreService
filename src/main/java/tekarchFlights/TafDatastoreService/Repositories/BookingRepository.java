@@ -9,6 +9,7 @@ import java.util.List;
 public interface BookingRepository extends JpaRepository<Bookings, Long> {
 
     List<Bookings> findByUserId(Long userId);
+    List<Bookings> findByFlightId(Long flightId);
 
   //  List<Bookings> findByUser(Users user);   //If userId is mapped to a User entity
 }

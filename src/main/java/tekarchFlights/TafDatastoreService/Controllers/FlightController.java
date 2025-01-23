@@ -1,7 +1,10 @@
 package tekarchFlights.TafDatastoreService.Controllers;
 
 import jakarta.validation.Valid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tekarchFlights.TafDatastoreService.Models.Flights;
@@ -9,6 +12,7 @@ import tekarchFlights.TafDatastoreService.Models.Users;
 import tekarchFlights.TafDatastoreService.Repositories.FlightRepository;
 import tekarchFlights.TafDatastoreService.Repositories.UserRepository;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -23,6 +27,8 @@ public class FlightController {
     public List<Flights> getAllFlights() {
         return flightRepository.findAll();
     }
+
+    private static final Logger logger = LogManager.getLogger(FlightController.class);
 
     @PostMapping
     public ResponseEntity<Flights> addFlight(@Valid @RequestBody Flights flights) {
@@ -60,5 +66,21 @@ public class FlightController {
         flightRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{flightId}/update")
+    public ResponseEntity<Flights> updateFlights(@PathVariable Long flightId, @RequestBody Flights flight) {
+        // Fetch flight from DB, update fields, and save back
+        Optional<Flights> existingFlight = flightRepository.findById(flightId);
+        if (existingFlight.isPresent()) {
+            Flights updatedFlights = existingFlight.get();
+            updatedFlights.setAvailableSeats(flight.getAvailableSeats());
+            // Save updated flight
+            flightRepository.save(updatedFlights);
+            return ResponseEntity.ok(updatedFlights);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
 }
 

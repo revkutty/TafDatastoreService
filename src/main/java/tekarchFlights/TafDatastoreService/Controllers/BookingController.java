@@ -2,6 +2,8 @@ package tekarchFlights.TafDatastoreService.Controllers;
 
 
 import jakarta.validation.Valid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import tekarchFlights.TafDatastoreService.Service.BookingService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -30,6 +33,8 @@ public class BookingController {
 
     @Autowired
     private BookingService bookingService;
+
+    private static final Logger logger = LogManager.getLogger(BookingController.class);
 
     @PostMapping
     public ResponseEntity<Bookings> createBooking(@Valid @RequestBody BookingRequestDTO bookingRequestDTO) {
@@ -59,18 +64,6 @@ public class BookingController {
         return ResponseEntity.ok(bookings);
     }
 
-    //This method gets the data from User DB
-  /*  @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Bookings>> getBookingsForUser(@PathVariable Long userId) {
-        List<Bookings> bookings = bookingService.getBookingsForUser(userId);
-        if (bookings.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(bookings);
-    }
-
-   */
-
 
     //This method gets the User data from Booking DB
       @GetMapping("/user/{userId}")
@@ -82,6 +75,16 @@ public class BookingController {
         return ResponseEntity.ok(bookings);
     }
 
+    @GetMapping("/flight/{flightId}")
+    public ResponseEntity<List<BookingResponseDTO>> getBookingsByFlightId(@PathVariable Long flightId) {
+        List<BookingResponseDTO> flightBookings = bookingService.getBookingsByFlightId(flightId);
+
+        if (flightBookings.isEmpty()) {
+            return ResponseEntity.notFound().build(); // Return 404 if no bookings are found
+        }
+
+        return ResponseEntity.ok(flightBookings); // Return 200 with the list of bookings
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Bookings> updateBooking(@PathVariable Long id, @Valid @RequestBody BookingRequestDTO bookingRequestDTO) {
@@ -143,6 +146,40 @@ public class BookingController {
         bookingRepository.save(booking);
 
         return ResponseEntity.ok("Booking status updated successfully.");
+    }
+
+    @PutMapping("/flights/{flightId}/update")
+    public ResponseEntity<Flights> updateFlight(@PathVariable Long flightId, @RequestBody Flights flight) {
+        try {
+            // Log the incoming request and payload for debugging
+            logger.info("Updating flight: {}", flight);
+
+            // Find the flight by ID first
+            Optional<Flights> existingFlight = flightRepository.findById(flightId);
+
+            if (!existingFlight.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // Flight not found
+            }
+
+            // Update the fields in the existing flight
+            Flights updatedFlight = existingFlight.get();
+            updatedFlight.setFlightNumber(flight.getFlightNumber());
+            updatedFlight.setDeparture(flight.getDeparture());
+            updatedFlight.setArrival(flight.getArrival());
+            updatedFlight.setAvailableSeats(flight.getAvailableSeats());
+            updatedFlight.setPrice(flight.getPrice());
+            updatedFlight.setDepartureTime(flight.getDepartureTime());
+            updatedFlight.setArrivalTime(flight.getArrivalTime());
+
+            // Save the updated flight back to the repository
+            Flights savedFlight = flightRepository.save(updatedFlight);
+
+            // Return the updated flight as the response
+            return ResponseEntity.ok(savedFlight);
+        } catch (Exception e) {
+            logger.error("Error updating flight with ID {}: {}", flightId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
 
