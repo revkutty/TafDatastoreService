@@ -12,6 +12,8 @@ import tekarchFlights.TafDatastoreService.Repositories.UserRepository;
 
 import java.util.List;
 
+
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {

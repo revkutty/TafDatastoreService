@@ -8,13 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tekarchFlights.TafDatastoreService.Models.Flights;
-import tekarchFlights.TafDatastoreService.Models.Users;
 import tekarchFlights.TafDatastoreService.Repositories.FlightRepository;
-import tekarchFlights.TafDatastoreService.Repositories.UserRepository;
+
 import java.util.List;
 import java.util.Optional;
 
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/flights")
 public class FlightController {
@@ -29,6 +28,7 @@ public class FlightController {
     }
 
     private static final Logger logger = LogManager.getLogger(FlightController.class);
+
 
     @PostMapping
     public ResponseEntity<Flights> addFlight(@Valid @RequestBody Flights flights) {
